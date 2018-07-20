@@ -1,0 +1,69 @@
+Android coding exercise: 
+
+Goal - Write a data persistence layer that *keeps UI in sync with backend data stores*. Provide an AIDL interface to interact with the persistence layer over android Binder IPC.
+
+Use Case:
+ Users register/authenticate/manage their account through a mobile app.
+ User can register/create account
+ User can log in / log out
+ User can edit data stored in their account settings
+
+API:
+User Params(payload):
+username: String
+password: String
+age: int (in millis, to be displayed as years)
+height: int (in cm, to be displayed as feet, inches)
+
+Givens -
+A *restful* http API has been provided with the following endpoints:
+API Main URL:  https://mirror-android-test.herokuapp.com/
+Endpoints will always return full user resource upon complete request
+  
+POST    /users
+  Creates new user, no jwt token required
+POST    /auth
+  Returns jwt token
+ GET       /users/:id
+  Requires jwt token passed as header
+  "Authorization" "JWT <jwt token>"
+  So header of Authorization and value of "JWT" plus a space plus the jwt token returned from /auth
+ PATCH   /users/:id
+  Requires jwt token passed as header
+
+Expectations:
+Android app should start a service that keeps running in background 
+All network operations are handled by service
+Communication between app and service is done using AIDL
+The data persistence layer should be *encapsulated in a service, and communicated to over an AIDL interface* . It is up to you to decide how that interface should be defined. The UI should be implemented to use that data persistence service via the interface.
+To start with persistence could be as simple as a in-memory hashMap( or any other preferred persistence )
+
+Please refer to below steps for additional guidance:
+Step 1:   User creation: 
+POST   “/users”   
+body : 
+{
+   "username": "test1234",
+    "Password":"password"
+}
+
+Response is persisted in service as  “Username” -> “User Response” map
+
+Step 2: Login 
+Using - POST    /auth
+This returns jwt token 
+Username to token map is persisted 
+
+Step 3: Fetch user data
+Based on current logged username, userid can be fetched from persistence from step 1
+use GET       /users/:id
+To fetch data and render on UI
+
+Step 4: Update user data
+Using  - PATCH /users/:id  user should be able to update data
+
+
+Code should compile and run without any crashes. Please work on this for no more than four hours. Code should be submitted by sending a link to a public git repository, either on Github or from a similar git hosting service. Well structured comments in code are always welcome, especially for function definitions.
+
+All code should be written in Java. Kotlin is interesting and knowledge of it is welcome but our current code base is all in Java. Any dependencies should either be included via gradle, or provided as a jar file in the git tree and properly configured within the gradle build. Target your code to run on Android M (6.0.1) or later.
+
