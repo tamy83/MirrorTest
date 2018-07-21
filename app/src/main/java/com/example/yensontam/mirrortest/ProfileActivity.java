@@ -4,19 +4,23 @@ import java.util.Calendar;
 import java.util.Date;
 
 import android.app.DatePickerDialog;
+import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
+import android.os.RemoteException;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.TextView;
 
 import org.w3c.dom.Text;
 
-public class ProfileActivity extends AppCompatActivity {
+public class ProfileActivity extends MirrorActivity {
 
     private FloatingActionButton dobPicker;
     private TextView user;
@@ -25,6 +29,7 @@ public class ProfileActivity extends AppCompatActivity {
     private TextView heightLabel;
     private TextView age;
     private TextView height;
+    private Button update;
 
     private DatePickerDialog.OnDateSetListener dobPickerOnDateSetListener;
 
@@ -39,6 +44,7 @@ public class ProfileActivity extends AppCompatActivity {
         ageLabel = (TextView) findViewById(R.id.profileTextViewAgeLabel);
         age = (TextView) findViewById(R.id.profileTextViewAge);
         heightLabel = (TextView) findViewById(R.id.profileTextViewHeightLabel);
+        update = (Button) findViewById(R.id.profileBtnUpdate);
 
         dobPicker.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -66,7 +72,29 @@ public class ProfileActivity extends AppCompatActivity {
             }
         };
 
+        update.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (mRestService != null) {
+                    try {
+                        mRestService.update();
+                    } catch (RemoteException e) {
+                        Log.e("Mirror","mRestService exception: " + e.getMessage());
+                        Log.e("Mirror","mRestService stacktrace: " + Log.getStackTraceString(e));
+                    }
+                }
+            }
+        });
+
 
 
     }
+
+    protected void response(String value) {
+        Log.i("Mirror", "Profile Activity response: " + value);
+    }
+    protected void error(String message) {
+        Log.i("Mirror", "Profile Activity error: " + message);
+    }
+
 }

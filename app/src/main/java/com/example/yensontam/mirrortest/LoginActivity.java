@@ -13,7 +13,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 
-public class LoginActivity extends AppCompatActivity {
+public class LoginActivity extends MirrorActivity {
 
     private EditText name;
     private EditText password;
@@ -29,10 +29,6 @@ public class LoginActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
-
-        Intent intent = new Intent(LoginActivity.this, RestService.class);
-        intent.setAction(IRestService.class.getName());
-        bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
 
         name = (EditText) findViewById(R.id.loginEditTextName);
         password = (EditText) findViewById(R.id.loginEditTextPassword);
@@ -62,7 +58,7 @@ public class LoginActivity extends AppCompatActivity {
                 // login
                 if (mRestService != null) {
                     try {
-                        mRestService.create(name.getText().toString(), password.getText().toString());
+                        mRestService.login(name.getText().toString(), password.getText().toString());
                     } catch (RemoteException e) {
                         Log.e("Mirror","mRestService exception: " + e.getMessage());
                         Log.e("Mirror","mRestService stacktrace: " + Log.getStackTraceString(e));
@@ -72,21 +68,12 @@ public class LoginActivity extends AppCompatActivity {
         });
     }
 
-    IRestService mRestService;
-    private ServiceConnection mConnection = new ServiceConnection() {
-        // Called when the connection with the service is established
-        public void onServiceConnected(ComponentName className, IBinder service) {
-            // Following the example above for an AIDL interface,
-            // this gets an instance of the IRemoteInterface, which we can use to call on the service
-            mRestService = IRestService.Stub.asInterface(service);
-            Log.d("Mirror", "Service connected");
-        }
+    protected void response(String value) {
+        Log.i("Mirror", "Login Activity response: " + value);
+    }
+    protected void error(String message) {
+        Log.i("Mirror", "Login Activity error: " + message);
+    }
 
-        // Called when the connection with the service disconnects unexpectedly
-        public void onServiceDisconnected(ComponentName className) {
-            Log.d("Mirror", "Service has unexpectedly disconnected");
-            mRestService = null;
-        }
-    };
 
 }

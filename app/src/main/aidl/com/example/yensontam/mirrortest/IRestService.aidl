@@ -1,7 +1,6 @@
 // IRestService.aidl
 package com.example.yensontam.mirrortest;
-
-// Declare any non-default types here with import statements
+import com.example.yensontam.mirrortest.IRestServiceCallback;
 
 interface IRestService {
 /**
@@ -19,5 +18,8 @@ interface IRestService {
 */
     void create(String username, String password);
     void login(String username, String password);
+    void update();
 
+    void registerCallback(IRestServiceCallback callback);
+    void unRegisterCallback();
 }
