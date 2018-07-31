@@ -16,10 +16,11 @@ interface IRestService {
   	Requires jwt token passed as header
 
 */
-    void create(String username, String password);
-    void login(String username, String password);
+    void create(int uid, String username, String password);
+    void login(int uid, String username, String password);
     void update();
+    void get(int uid, String userId, String access_token);
 
-    void registerCallback(IRestServiceCallback callback);
-    void unRegisterCallback();
+    void registerCallback(int uid, IRestServiceCallback callback);
+    void unRegisterCallback(int uid);
 }

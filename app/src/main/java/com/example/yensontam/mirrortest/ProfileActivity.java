@@ -4,10 +4,14 @@ import java.util.Calendar;
 import java.util.Date;
 
 import android.app.DatePickerDialog;
+import android.content.ComponentName;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
+import android.os.IBinder;
 import android.os.RemoteException;
+import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -17,7 +21,10 @@ import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.w3c.dom.Text;
 
 public class ProfileActivity extends MirrorActivity {
@@ -32,6 +39,10 @@ public class ProfileActivity extends MirrorActivity {
     private Button update;
 
     private DatePickerDialog.OnDateSetListener dobPickerOnDateSetListener;
+
+    // used when loginActivity starts this activity, accessTokenFromIntent is passed in the Intent and used for initial
+    // GET of profile info. The access_token may not be written to sharedpreferences as it is done asynchronously
+    private String accessTokenFromIntent;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -86,8 +97,7 @@ public class ProfileActivity extends MirrorActivity {
             }
         });
 
-
-
+        accessTokenFromIntent = getIntent().getStringExtra("access_token");
     }
 
     protected void response(String value) {
@@ -95,6 +105,24 @@ public class ProfileActivity extends MirrorActivity {
     }
     protected void error(String message) {
         Log.i("Mirror", "Profile Activity error: " + message);
+    }
+
+    @Override
+    protected void onServiceConnected(ComponentName className, IBinder service) {
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this.getApplicationContext());
+        String id = sharedPref.getString("id", null);
+        String access_token = accessTokenFromIntent;
+        if (access_token == null)
+            access_token = sharedPref.getString("access_token", null);
+        Log.i("Mirror", "found id: " + id + " access_token: " + access_token);
+        if (id != null && access_token != null && mRestService != null) {
+            try {
+                mRestService.get(hashCode(), id, access_token);
+            } catch (RemoteException e) {
+                Log.e("Mirror", "mRestService exception: " + e.getMessage());
+                Log.e("Mirror", "mRestService stacktrace: " + Log.getStackTraceString(e));
+            }
+        }
     }
 
 }

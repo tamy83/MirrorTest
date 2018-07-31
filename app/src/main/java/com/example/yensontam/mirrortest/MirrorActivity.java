@@ -22,10 +22,11 @@ public abstract class MirrorActivity extends AppCompatActivity {
             mRestService = IRestService.Stub.asInterface(service);
             Log.d("Mirror", "Service connected");
             try {
-                mRestService.registerCallback(mCallback);
+                mRestService.registerCallback(MirrorActivity.this.hashCode(), mCallback);
             } catch (RemoteException e) {
                 Log.e("Mirror", "Unable to register callback: " + e.getMessage());
             }
+            MirrorActivity.this.onServiceConnected(className, service);
         }
 
         // Called when the connection with the service disconnects unexpectedly
@@ -33,10 +34,11 @@ public abstract class MirrorActivity extends AppCompatActivity {
             Log.d("Mirror", "Service has unexpectedly disconnected");
             mRestService = null;
             try {
-                mRestService.unRegisterCallback();
+                mRestService.unRegisterCallback(MirrorActivity.this.hashCode());
             } catch (RemoteException e) {
 
             }
+            MirrorActivity.this.onServiceDisconnected(className);
         }
     };
 
@@ -52,7 +54,7 @@ public abstract class MirrorActivity extends AppCompatActivity {
         if (mRestService != null) {
             // Detach our existing connection.
             try {
-                mRestService.unRegisterCallback();
+                mRestService.unRegisterCallback(this.hashCode());
             } catch (RemoteException e) {
 
             }unbindService(mConnection);
@@ -77,4 +79,7 @@ public abstract class MirrorActivity extends AppCompatActivity {
 
     protected abstract void response(String value);
     protected abstract void error(String value);
+
+    protected void onServiceConnected(ComponentName className, IBinder service) {}
+    protected void onServiceDisconnected(ComponentName className) {}
 }
